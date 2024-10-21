@@ -1,5 +1,11 @@
 def delivery(packet):
-    return {
-        "status": "success",
-        "message": "Order delivered successfully",
-    }
+    OK = int(input())
+    if OK:  
+        return {
+            "status": "success",
+            "message": "Order delivered successfully",
+        }
+    else:
+        return {
+            "status": "error",    
+        }

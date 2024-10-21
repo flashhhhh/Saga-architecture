@@ -3,7 +3,7 @@ CREATE DATABASE payment_db;
 
 CREATE USER payment_user WITH PASSWORD '12345678';
 
-CREATE TABLE bank_accounts (
+CREATE TABLE (
     bank_number VARCHAR(20) PRIMARY KEY,
     balance DECIMAL(10, 2) NOT NULL
 );

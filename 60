@@ -1,0 +1,13 @@
+Collecting setuptools
+  Downloading setuptools-75.1.0-py3-none-any.whl.metadata (6.9 kB)
+Collecting wheel
+  Downloading wheel-0.44.0-py3-none-any.whl.metadata (2.3 kB)
+Collecting Cython~=3.0
+  Downloading Cython-3.0.11-cp312-cp312-win_amd64.whl.metadata (3.2 kB)
+Downloading setuptools-75.1.0-py3-none-any.whl (1.2 MB)
+   ---------------------------------------- 1.2/1.2 MB 3.9 MB/s eta 0:00:00
+Downloading wheel-0.44.0-py3-none-any.whl (67 kB)
+Downloading Cython-3.0.11-cp312-cp312-win_amd64.whl (2.8 MB)
+   ---------------------------------------- 2.8/2.8 MB 6.2 MB/s eta 0:00:00
+Installing collected packages: wheel, setuptools, Cython
+Successfully installed Cython-3.0.11 setuptools-75.1.0 wheel-0.44.0

@@ -27,6 +27,8 @@ def createOrder(json_data):
 
     try:
         cursor = conn.cursor()
+        cursor.execute("SELECT * FROM orders")
+        print("Before create order:", cursor.fetchall())
 
         total_cost = 0
         for item in json_data["list_of_items"]:
@@ -39,6 +41,8 @@ def createOrder(json_data):
         )
 
         conn.commit()
+        cursor.execute("SELECT * FROM orders")
+        print("Before create order:", cursor.fetchall())
 
         # Get the ID of the newly created order
         cursor.execute("SELECT MAX(id) FROM orders")

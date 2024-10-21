@@ -33,6 +33,9 @@ def processPayment(json_data):
     cursor = conn.cursor()
 
     try:
+        cursor.execute("SELECT * FROM bank_accounts")
+        print("Before payment:", cursor.fetchall())
+        
         # Check if the sender bank number is valid
         cursor.execute(
             "SELECT * FROM bank_accounts WHERE bank_number = %s",
@@ -60,6 +63,10 @@ def processPayment(json_data):
         )
 
         conn.commit()
+
+        cursor.execute("SELECT * FROM bank_accounts")
+        print("Before payment:", cursor.fetchall())
+
         cursor.close()
         return {"status": "success", "message": "Payment processed successfully"}
     except Exception as e:
