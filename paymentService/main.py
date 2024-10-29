@@ -29,10 +29,10 @@ admin_bank_number = '0123456789'
 
 def processPayment(json_data):
     # Start an ACID transaction
-    conn.autocommit = False
     cursor = conn.cursor()
 
     try:
+        # conn.autocommit = False
         cursor.execute("SELECT * FROM bank_accounts")
         print("Before payment:", cursor.fetchall())
         
@@ -68,8 +68,34 @@ def processPayment(json_data):
         print("Before payment:", cursor.fetchall())
 
         cursor.close()
+        # conn.autocommit = True
         return {"status": "success", "message": "Payment processed successfully"}
     except Exception as e:
         conn.rollback()
         cursor.close()
         return {"status": "error", "message": "Payment processing failed", "error": str(e)}
+
+def rollbackPayment(paymentData):
+    conn = connect()
+    cursor = conn.cursor()
+    try:
+        # conn.autocommit = False
+        cursor.execute(
+            "UPDATE bank_accounts SET balance = balance - %s WHERE bank_number = %s",
+            (paymentData["total_cost"], admin_bank_number)
+        )
+
+        cursor.execute(
+            "UPDATE bank_accounts SET balance = balance + %s WHERE bank_number = %s",
+            (paymentData["total_cost"], paymentData["sender_bank_number"])
+        )
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+    finally:
+        conn.close()
+
+
+        
+        
+    

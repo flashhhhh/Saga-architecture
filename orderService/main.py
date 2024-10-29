@@ -36,8 +36,8 @@ def createOrder(json_data):
             total_cost += cost
 
         cursor.execute(
-            "INSERT INTO orders (customer_name, list_of_items, total) VALUES (%s, %s, %s)",
-            (json_data["customer_name"], json_data["list_of_items"], total_cost)
+            "INSERT INTO orders (customer_name, list_of_items, total, status) VALUES (%s, %s, %s, %s)",
+            (json_data["customer_name"], json_data["list_of_items"], total_cost, True)
         )
 
         conn.commit()
@@ -52,3 +52,17 @@ def createOrder(json_data):
         return {"status": "success", "message": "Order created successfully", "total_cost": total_cost, "order_id": order_id}
     except Exception as e:
         return {"status": "error", "message": "Order creation failed", "error": str(e)}
+    
+def rollbackOrder(order_id):
+    conn = connect()
+    cursor = conn.cursor()
+    try:
+        # conn.autocommit = False
+        cursor.execute("UPDATE orders SET status = FALSE WHERE id = %s", (order_id,))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+    finally:
+        cursor.close()
+
+        
