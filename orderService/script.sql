@@ -11,3 +11,4 @@ CREATE TABLE orders (
 );
 
 GRANT ALL PRIVILEGES ON TABLE orders TO order_user;
+GRANT USAGE, SELECT ON SEQUENCE orders_id_seq TO order_user;

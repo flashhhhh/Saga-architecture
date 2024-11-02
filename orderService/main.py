@@ -3,6 +3,9 @@ import psycopg2
 import dotenv
 import os
 import random
+import json
+
+from kafka import KafkaProducer, KafkaConsumer
 
 def connect():
     # DB_NAME = os.getenv("DB_NAME")
@@ -21,6 +24,20 @@ def connect():
         password=DB_PASSWORD,
         host=DB_HOST
     )
+
+producer = KafkaProducer(
+    bootstrap_servers='localhost:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8')
+)
+
+consumer = KafkaConsumer(
+    'order-topic',
+    bootstrap_servers='localhost:9092',
+    auto_offset_reset='latest',
+    group_id='order-group',
+    enable_auto_commit=True,
+    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+)
 
 def createOrder(json_data):
     conn = connect()
@@ -48,3 +65,27 @@ def createOrder(json_data):
         return {"status": "success", "message": "Order created successfully", "total_cost": total_cost, "order_id": order_id}
     except Exception as e:
         return {"status": "error", "message": "Order creation failed", "error": str(e)}
+
+if __name__ == "__main__":
+    for delivery in consumer:
+        message = delivery.value
+
+        if (message["action"] == "Create order"):
+            response = createOrder(message)
+
+            if (response["status"] == "success"):
+                response["action"] = "Create payment"
+                response["sender_bank_number"] = message["sender_bank_number"]
+                producer.send('payment-topic', value=response)
+            elif (response["status"] == "error"):
+                response["action"] = "Rollback main"
+                producer.send('main-topic', value=response)
+        
+        elif (message["action"] == "Rollback order"):
+            print("Rollback order")
+            response = {
+                "status": "error",
+                "message": "Order creation failed",
+                "error": "Payment processing failed"
+            }
+            producer.send('main-topic', value=response)

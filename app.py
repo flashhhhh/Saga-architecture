@@ -1,9 +1,8 @@
 from fastapi import FastAPI, Request
 from pydantic import BaseModel
+import json
 
-from orderService.main import createOrder
-from paymentService.main import processPayment
-from shippingService.main import delivery
+from kafka import KafkaProducer, KafkaConsumer
 
 class Transaction(BaseModel):
     customer_name: str
@@ -13,36 +12,47 @@ class Transaction(BaseModel):
 
 app = FastAPI()
 
+producer = KafkaProducer(
+    bootstrap_servers='localhost:9092',
+    value_serializer=lambda v: json.dumps(v).encode('utf-8'),
+)
+
+consumer = KafkaConsumer(
+    'main-topic',
+    bootstrap_servers='localhost:9092',
+    group_id='main-group',
+    auto_offset_reset='latest',
+    enable_auto_commit=True,
+    value_deserializer=lambda x: json.loads(x.decode('utf-8'))
+)
+
 @app.post("/createOrder")
 async def create_order(transaction: Transaction):
     orderData = {
+        "status": "success",
         "customer_name": transaction.customer_name,
         "list_of_items": transaction.list_of_items,
-    }
-    response = createOrder(orderData)
-
-    if (response["status"] == "error"):
-        return response
-
-    paymentData = {
         "sender_bank_number": transaction.sender_bank_number,
-        "total_cost": response["total_cost"]
+        "action": "Create order"
     }
-    paymentResponse = processPayment(paymentData)
 
-    if (paymentResponse["status"] == "error"):
-        return paymentResponse
+    producer.send('order-topic', value=orderData)
+    
+    # Receive only 1 response from orderService
 
-    packetData = {
-        "order_id": response["order_id"],
-        "address": transaction.address,
-    }
-    deliveryResponse = delivery(packetData)
+    while True:
+        for delivery in consumer:
+            message = delivery.value
+            
+            if message["status"] == "success":
+                print("Received response from orderService")
+                return {"status": "success", "message": "Order created successfully"}
+            else:
+                print("Received response from orderService")
+                return {"status": "error", "message": "Order creation failed"}
 
-    if (deliveryResponse["status"] == "error"):
-        return deliveryResponse
+# if __name__ == "__main__":
+#     for delivery in consumer:
+#         message = delivery.value
 
-    return {
-        "status": "success",
-        "message": "Order placed successfully",
-    }
+#         # if (message["action"] )
