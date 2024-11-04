@@ -1,3 +1,14 @@
+# Ignore Python dependencies
+*.whl
+*.egg-info/
+__pycache__/
+*.py[cod]
+
+# Ignore virtual environment (if not using Docker)
 venv/
-**/__pycache__/
-**/.env
+env/
+
+# pipenv and poetry dependencies
+Pipfile
+Pipfile.lock
+poetry.lock

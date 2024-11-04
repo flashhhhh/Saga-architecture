@@ -24,11 +24,13 @@ def connect():
 
 def createOrder(json_data):
     conn = connect()
-
     try:
         cursor = conn.cursor()
-        cursor.execute("SELECT * FROM orders")
-        print("Before create order:", cursor.fetchall())
+        
+        #add code to demo error
+        if json_data["customer_name"] == "TestError":
+            raise Exception("Intentional failure: Invalid customer name for testing")
+                            
 
         total_cost = 0
         for item in json_data["list_of_items"]:
@@ -41,9 +43,7 @@ def createOrder(json_data):
         )
 
         conn.commit()
-        cursor.execute("SELECT * FROM orders")
-        print("Before create order:", cursor.fetchall())
-
+        
         # Get the ID of the newly created order
         cursor.execute("SELECT MAX(id) FROM orders")
         order_id = cursor.fetchone()[0]
@@ -60,9 +60,12 @@ def rollbackOrder(order_id):
         # conn.autocommit = False
         cursor.execute("UPDATE orders SET status = FALSE WHERE id = %s", (order_id,))
         conn.commit()
+        cursor.close()
+        return {"status": "success", "message": "Order rolled back successfully"}
     except Exception as e:
         conn.rollback()
-    finally:
         cursor.close()
+        return {"status": "error", "message": "Order rollback failed", "error": str(e)}
+
 
         

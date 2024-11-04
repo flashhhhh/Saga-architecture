@@ -21,16 +21,13 @@ async def create_order(transaction: Transaction):
         "list_of_items": transaction.list_of_items,
     }
     orderResponse = createOrder(orderData)
-
-    print("Order created sucessfully!!!")
-    print("Order status: ", orderResponse['status'])
     
     if (orderResponse["status"] == "error"):
         return orderResponse
 
     order_service = {
         "name": "order",
-        "data": orderResponse
+        "data": orderResponse["order_id"]
     }
     service_stack.append(order_service)
 
@@ -42,18 +39,15 @@ async def create_order(transaction: Transaction):
 
     paymentResponse = processPayment(paymentData)
 
-    print("Payment successfully!!!")
-    print("Payment status: ", paymentResponse["status"])
-
     if (paymentResponse["status"] == "error"):
         return rollback_services(service_stack)
 
     payment_service = {
         "name": "payment",
-        "data": paymentData
+        "data": paymentResponse["transaction_id"]
     }
+    
     service_stack.append(payment_service)
-
 
     packetData = {
         "order_id": orderResponse["order_id"],
@@ -74,8 +68,16 @@ def rollback_services(service_task):
     while service_task:
         service = service_task.pop()
         if service["name"] == "payment":
-            rollbackPayment(service["data"])
+            response = rollbackPayment(service["data"])
+            if (response["status"] == "error"):
+                # When saga rollback fails, we need to manually rollback the payment
+                manually = True
+                print(response)
+                break
         elif service["name"] == "order":
-            rollbackOrder(service["data"]["order_id"])
-
+            response = rollbackOrder(service["data"])
+            if (response["status"] == "error"):
+                manually = True
+                print(response)
+                break
     return {"status": "error", "message": "Transaction failed"}

@@ -33,8 +33,6 @@ def processPayment(json_data):
 
     try:
         # conn.autocommit = False
-        cursor.execute("SELECT * FROM bank_accounts")
-        print("Before payment:", cursor.fetchall())
         
         # Check if the sender bank number is valid
         cursor.execute(
@@ -62,38 +60,59 @@ def processPayment(json_data):
             (json_data["total_cost"], admin_bank_number)
         )
 
+        cursor.execute(
+            "INSERT INTO transaction_history (sender_bank_number, receiver_bank_number, amount) VALUES (%s, %s, %s)",
+            (json_data["sender_bank_number"], admin_bank_number, json_data["total_cost"])
+        )
+
         conn.commit()
 
-        cursor.execute("SELECT * FROM bank_accounts")
-        print("Before payment:", cursor.fetchall())
-
+        # cursor.execute("SELECT * FROM bank_accounts")
+        # print("After payment:", cursor.fetchall())
+          # Get the last transaction ID
+        cursor.execute("SELECT MAX(id) FROM transaction_history")
+        transaction_id = cursor.fetchone()[0]
+    
         cursor.close()
         # conn.autocommit = True
-        return {"status": "success", "message": "Payment processed successfully"}
+        return {"status": "success", "message": "Payment processed successfully", "transaction_id": transaction_id}
     except Exception as e:
         conn.rollback()
         cursor.close()
         return {"status": "error", "message": "Payment processing failed", "error": str(e)}
 
-def rollbackPayment(paymentData):
+def rollbackPayment(transaction_id):
     conn = connect()
     cursor = conn.cursor()
     try:
         # conn.autocommit = False
         cursor.execute(
+            "SELECT sender_bank_number, amount FROM transaction_history WHERE id = %s",
+            (transaction_id,)
+        )
+        transaction = cursor.fetchone()
+
+        cursor.execute(
             "UPDATE bank_accounts SET balance = balance - %s WHERE bank_number = %s",
-            (paymentData["total_cost"], admin_bank_number)
+            (transaction[1], admin_bank_number)
         )
 
         cursor.execute(
             "UPDATE bank_accounts SET balance = balance + %s WHERE bank_number = %s",
-            (paymentData["total_cost"], paymentData["sender_bank_number"])
+            (transaction[1], transaction[0])
+        )
+
+        cursor.execute(
+            "INSERT INTO transaction_history (sender_bank_number, receiver_bank_number, amount) VALUES (%s, %s, %s)",
+            (admin_bank_number, transaction[0], transaction[1])
         )
         conn.commit()
+        cursor.close()
+        return {"status": "success", "message": "Payment rolled back successfully"}
     except Exception as e:
         conn.rollback()
-    finally:
-        conn.close()
+        cursor.close()
+        return {"status": "error", "message": "Payment rollback failed", "error": str(e)}
 
 
         
