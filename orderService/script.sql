@@ -7,7 +7,8 @@ CREATE TABLE orders (
     id SERIAL PRIMARY KEY,
     customer_name VARCHAR(255) NOT NULL,
     list_of_items TEXT NOT NULL,
-    total INT NOT NULL
+    total INT NOT NULL,
+    status BOOLEAN DEFAULT FALSE
 );
 
 GRANT ALL PRIVILEGES ON TABLE orders TO order_user;
