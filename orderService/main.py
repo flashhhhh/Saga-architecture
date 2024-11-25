@@ -85,18 +85,34 @@ if __name__ == "__main__":
         message = delivery.value
 
         if (message["action"] == "Create order"):
+            with open("../.log", "a") as f:
+                f.write(f"Received request to create order\n")
+            
+            print(f"Received request to create order\n")
             response = createOrder(message)
 
             if (response["status"] == "success"):
+                with open("../.log", "a") as f:
+                    f.write(f"Order created successfully\n")
+
                 response["action"] = "Create payment"
                 response["sender_bank_number"] = message["sender_bank_number"]
                 producer.send('payment-topic', value=response)
             elif (response["status"] == "error"):
+                with open("../.log", "a") as f:
+                    f.write(f"Order creation failed\n")
+
                 response["action"] = "Rollback main"
                 producer.send('main-topic', value=response)
         
         elif (message["action"] == "Rollback order"):
+            with open("../.log", "a") as f:
+                f.write(f"Received request to rollback order\n")
+
             rollback(message["order_id"])
+
+            with open("../.log", "a") as f:
+                f.write(f"Order rolled back\n")
             
             response = {
                 "status": "error",

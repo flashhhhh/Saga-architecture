@@ -35,11 +35,20 @@ if __name__ == "__main__":
         message = delivery.value
 
         if (message["action"] == "Create shipping"):
+            with open("../.log", "a") as f:
+                f.write(f"Received request to create shipping\n")
+            
             response = shipping(message)
 
             if (response["status"] == "success"):
+                with open("../.log", "a") as f:
+                    f.write(f"Shipping successful\n")
+                
                 producer.send('main-topic', value=response)
             elif (response["status"] == "error"):
+                with open("../.log", "a") as f:
+                    f.write(f"Shipping failed.\n")
+
                 response["action"] = "Rollback payment"
                 response["order_id"] = message["order_id"]
                 response["transaction_id"] = message["transaction_id"]

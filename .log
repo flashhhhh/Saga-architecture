@@ -1,0 +1,61 @@
+----------------------------------------------------------
+Received HTTP request
+Received request to create order
+Received request to process payment
+Payment processed successfully
+Received request to create shipping
+Shipping successful
+Received response from orderService
+----------------------------------------------------------
+Received HTTP request
+Received request to create order
+Received request to process payment
+Payment processed successfully
+Received request to create shipping
+Shipping failed.
+Received request to rollback payment
+Payment rolled back successfully
+Received response from orderService
+----------------------------------------------------------
+Received HTTP request
+Received request to create order
+Received request to process payment
+Payment processed successfully
+Received request to create shipping
+Shipping successful
+Received response from orderService
+----------------------------------------------------------
+Received HTTP request
+Received request to create order
+Received request to process payment
+Received response from orderService
+----------------------------------------------------------
+Received HTTP request
+Received request to create order
+Received response from orderService
+Received request to process payment
+Payment processing failed. Going to roll back order. 
+----------------------------------------------------------
+Received HTTP request
+Received response from orderService
+Received request to create order
+Received request to process payment
+Payment processing failed. Going to roll back order. 
+----------------------------------------------------------
+Received HTTP request
+Received response from orderService
+Received request to create order
+Order created successfully
+Received request to process payment
+Payment processing failed. Going to roll back order. 
+Received request to rollback order
+Order rolled back
+----------------------------------------------------------
+Received HTTP request
+Received response from orderService
+Received request to create order
+Order created successfully
+Received request to process payment
+Payment processing failed. Going to roll back order. 
+Received request to rollback order
+Order rolled back

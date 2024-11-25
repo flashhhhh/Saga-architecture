@@ -144,26 +144,45 @@ if __name__ == "__main__":
         message = delivery.value
 
         if (message["action"] == "Create payment"):
+            print("Received request to process payment\n")
+            with open("../.log", "a") as f:
+                f.write("Received request to process payment\n")
+
             response = processPayment(message)
 
             if (response["status"] == "success"):
+                with open("../.log", "a") as f:
+                    f.write("Payment processed successfully\n")
+
                 response["action"] = "Create shipping"
                 response["order_id"] = message["order_id"]
                 producer.send('shipping-topic', value=response)
             elif (response["status"] == "error"):
+                with open("../.log", "a") as f:
+                    f.write("Payment processing failed. Going to roll back order. \n")
+
                 response["action"] = "Rollback order"
                 response["order_id"] = message["order_id"]
                 producer.send('order-topic', value=response)
 
         elif (message["action"] == "Rollback payment"):
+            with open("../.log", "a") as f:
+                f.write("Received request to rollback payment\n")
+
             response = rollbackPayment(message["transaction_id"])
 
             if (response["status"] == "success"):
+                with open("../.log", "a") as f:
+                    f.write("Payment rolled back successfully\n")
+
                 response["status"] = "error"
                 response["action"] = "Rollback order"
                 response["order_id"] = message["order_id"]
                 producer.send('order-topic', value=response)
             elif (response["status"] == "error"):
+                with open("../.log", "a") as f:
+                    f.write("Payment rollback failed. MANUAL INTERVENTION REQUIRED!!!\n")
+
                 # When saga rollback fails, we need to manually rollback the payment
                 manually = True
                 print(response)

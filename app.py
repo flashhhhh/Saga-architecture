@@ -28,6 +28,10 @@ consumer = KafkaConsumer(
 
 @app.post("/createOrder")
 async def create_order(transaction: Transaction):
+    with open(".log", "a") as f:
+        f.write("----------------------------------------------------------\n")
+        f.write(f"Received HTTP request\n")
+
     orderData = {
         "status": "success",
         "customer_name": transaction.customer_name,
@@ -45,10 +49,14 @@ async def create_order(transaction: Transaction):
             message = delivery.value
             
             if message["status"] == "success":
-                print("Received response from orderService")
+                with open(".log", "a") as f:
+                    f.write(f"Received response from orderService\n")
+
                 return {"status": "success", "message": "Order created successfully"}
             else:
-                print("Received response from orderService")
+                with open(".log", "a") as f:
+                    f.write(f"Received response from orderService\n")
+
                 return {"status": "error", "message": "Order creation failed"}
 
 # if __name__ == "__main__":
