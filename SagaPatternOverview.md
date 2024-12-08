@@ -4,9 +4,9 @@
 1. [Bối cảnh](#context)
 2. [Giải pháp](#solution)
 3. [Phân loại](#type)
-4. [Slide](#slide)
-5. [Một số lưu ý](#considerations)
-6. [Khi nào nên sử dụng](#when_to_use)
+4. [Một số lưu ý](#considerations)
+5. [Khi nào nên sử dụng](#when_to_use)
+6. [Slide](#slide)
 7. [Tài liệu tham khảo](#materials)
 
 ## Bối cảnh <a name="context"></a>
