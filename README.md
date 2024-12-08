@@ -1,4 +1,4 @@
-# Saga chroreography demo
+# Saga choreography demo
 
 This branch shows the implementation of choreography saga pattern in microservices using Apache Kafka as a message broker to communicate between services.
 
@@ -9,11 +9,11 @@ This branch shows the implementation of choreography saga pattern in microservic
 
 ### Flow 
 ```
-[Request] -> [API Server] -> [Order Service] -> [Payment Service] -> [Shipping Service] -> [API Server] -> [Response]
+[Request] -> [API Server] -> [Message Queue] -> [Order Service] -> [Message Queue] ->  [Payment Service] -> [Message Queue] -> [Shipping Service] -> [Message Queue] -> [API Server] -> [Response]
 ```
 
 ## Key features
-- Compensating failure distributed transaction by using roll back technique.
+- Compensating failure distributed transaction by using rollback technique.
 - Message queue fault tolerance.
 
 ## Prerequisites
@@ -104,4 +104,3 @@ uvicorn app:app --port 8000 --reload
 
 Now you can access the server through: http://localhost:8000/docs
 
-## Interacting with the backend server
